@@ -1,10 +1,14 @@
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useState } from 'react';
+import { CameraView, CameraType, useCameraPermissions, Camera } from 'expo-camera';
+import { useState, useRef } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BaseButton, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { CameraButton } from '@/components/CameraButton';
 
 export default function App() {
+  
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const ref = useRef(null);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -24,17 +28,27 @@ export default function App() {
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
+  const takePhoto = async () => {
+    const photo = await ref.current.takePictureAsync()
+    console.debug(photo)
+  }
 
   return (
-    <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-    </View>
+      <View style={styles.container}>
+        <CameraView style={styles.camera} facing={facing}>
+          {/*<View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity> 
+            
+          </View>*/}
+          <View style={styles.buttonContainer}>
+            <CameraButton onPress = {takePhoto}>
+            </CameraButton>
+          </View>
+        </CameraView>
+      </View>
+
   );
 }
 
@@ -54,7 +68,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: 'transparent',
-    margin: 64,
+    alignSelf: 'center',
+    margin: 128,
   },
   button: {
     flex: 1,
